@@ -1,0 +1,77 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+@TeleOp(name = "Driver20212022FinalDontTouch (Blocks to Java)", group = "")
+public class Driver20212022FinalDontTouch extends LinearOpMode {
+
+  private DcMotor motorLeftAsDcMotor;
+  private DcMotor motorRightAsDcMotor;
+  private DcMotor motorArmAsDcMotor;
+  private Servo servoArmAsServo;
+
+  /**
+   * This function is executed when this Op Mode is selected from the Driver Station.
+   */
+  @Override
+  public void runOpMode() {
+    double tgtPowerArmCurrent;
+    double bothSticks;
+    double tgtPowerLeft;
+    double tgtPowerRight;
+
+    motorLeftAsDcMotor = hardwareMap.get(DcMotor.class, "motorLeftAsDcMotor");
+    motorRightAsDcMotor = hardwareMap.get(DcMotor.class, "motorRightAsDcMotor");
+    motorArmAsDcMotor = hardwareMap.get(DcMotor.class, "motorArmAsDcMotor");
+    servoArmAsServo = hardwareMap.get(Servo.class, "servoArmAsServo");
+
+    // Put initialization blocks here.
+    waitForStart();
+    if (opModeIsActive()) {
+      // Put run blocks here.
+      while (opModeIsActive()) {
+        // Put loop blocks here.
+        // Testing Lijing's control ideas
+        // bothSticks = 1 when both sticks are pressed
+        if (gamepad1.left_stick_y != 0) {
+          if (gamepad1.right_stick_x != 0) {
+            bothSticks = 1;
+          } else {
+            bothSticks = 0;
+          }
+        }
+        if (gamepad1.right_stick_x < 0) {
+          // Left turn
+          tgtPowerLeft = 0;
+          tgtPowerRight = gamepad1.right_stick_x;
+        } else if (gamepad1.right_stick_x > 0) {
+          // Right turn
+          tgtPowerLeft = gamepad1.right_stick_x;
+          tgtPowerRight = 0;
+        } else {
+          // Forwards/Backwards no turn
+          tgtPowerLeft = -gamepad1.left_stick_y;
+          tgtPowerRight = gamepad1.left_stick_y;
+        }
+        // If both sticks are being used, modify values
+        // So turn and forward/backward happens together
+        if (bothSticks == 1) {
+          tgtPowerLeft = 1 * -gamepad1.left_stick_y + 1 * gamepad1.right_stick_x;
+          tgtPowerRight = 1 * gamepad1.left_stick_y + 1 * gamepad1.right_stick_x;
+        }
+        motorLeftAsDcMotor.setPower(tgtPowerLeft);
+        motorRightAsDcMotor.setPower(tgtPowerRight);
+        // Some numbers are sent to the phone for debugging
+        telemetry.addData("Target Power Left", tgtPowerLeft);
+        telemetry.addData("Target Power Right", tgtPowerRight);
+        telemetry.addData("Target Power Arm", tgtPowerArmCurrent);
+        telemetry.addData("Motor Power Right", motorRightAsDcMotor.getPower());
+        telemetry.addData("Motor Power Left", motorLeftAsDcMotor.getPower());
+        telemetry.update();
+      }
+    }
+  }
+}
